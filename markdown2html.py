@@ -23,7 +23,24 @@ def markdown2html(mark_content):
     for pattern, replacement in heading_patterns:
         html_content = pattern.sub(replacement, html_content)
 
-    return html_content
+    """ Detects and convert unordered lists"""
+    lines = html_content.split('\n')
+    in_list = False
+    list_items = []
+
+    for line in lines:
+        if line.startswith('- '):
+            list_items.append(line[2:])
+        else:
+            if list_items:
+                html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n' for item in list_items) + '</ul>'
+                yield html_list
+                list_items = []
+            yield line
+
+    if list_items:
+        html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n' for item in list_items) + '</ul>'
+        yield html_list
 
 
 def main():
@@ -44,7 +61,7 @@ def main():
     with open(input_file, 'r') as infile:
         markdown_content = infile.read()
 
-    html_content = markdown2html(markdown_content)
+    html_content = ''.join(markdown2html(markdown_content))
 
     with open(output_file, 'w') as outfile:
         outfile.write(html_content)
