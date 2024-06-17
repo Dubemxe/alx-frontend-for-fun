@@ -33,13 +33,15 @@ def markdown2html(mark_content):
             list_items.append(line[2:])
         else:
             if list_items:
-                html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n' for item in list_items) + '</ul>'
+                html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n' for
+                                               item in list_items) + '</ul>'
                 yield html_list
                 list_items = []
             yield line
 
     if list_items:
-        html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n' for item in list_items) + '</ul>'
+        html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n'
+                                       for item in list_items) + '</ul>'
         yield html_list
 
 
