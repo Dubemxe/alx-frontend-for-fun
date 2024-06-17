@@ -23,26 +23,47 @@ def markdown2html(mark_content):
     for pattern, replacement in heading_patterns:
         html_content = pattern.sub(replacement, html_content)
 
-    """ Detects and convert unordered lists"""
+    """ Detects and convert ordered and unordered lists"""
     lines = html_content.split('\n')
-    in_list = False
-    list_items = []
+    in_unordered_list = False
+    in_ordered_list = False
+    unordered_list_items = []
+    ordered_list_items = []
+
+    def generate_list_html(items, list_type):
+        html_list = f'<{list_type}>\n' + ''.join(f'    <li>{item}</li>\n' for item in items) + f'</{list_type}>'
+        return html_list
 
     for line in lines:
         if line.startswith('- '):
-            list_items.append(line[2:])
+            if in_ordered_list:
+                yield generate_list_html(ordered_list_items, 'ol')
+                ordered_list_items = []
+                in_ordered_list = False
+            unordered_list_items.append(line[2:])
+            in_unordered_list = True
+        elif line.startswith('* '):
+            if in_unordered_list:
+                yield generate_list_html(unordered_list_items, 'ul')
+                unordered_list_items = []
+                in_unordered_list = False
+            ordered_list_items.append(line[2:])
+            in_ordered_list = True
         else:
-            if list_items:
-                html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n' for
-                                               item in list_items) + '</ul>'
-                yield html_list
-                list_items = []
+            if in_unordered_list:
+                yield generate_list_html(unordered_list_items, 'ul')
+                unordered_list_items = []
+                in_unordered_list = False
+            if in_ordered_list:
+                yield generate_list_html(ordered_list_items, 'ol')
+                ordered_list_items = []
+                in_ordered_list = False
             yield line
 
-    if list_items:
-        html_list = '<ul>\n' + ''.join(f'    <li>{item}</li>\n'
-                                       for item in list_items) + '</ul>'
-        yield html_list
+    if unordered_list_items:
+        yield generate_list_html(unordered_list_items, 'ul')
+    if ordered_list_items:
+        yield generate_list_html(ordered_list_items, 'ol')
 
 
 def main():
