@@ -4,6 +4,26 @@ A markdown2html script
 '''
 import os
 import sys
+import re
+
+
+def markdown2html(mark_content):
+    """Creates a heading pattern for html syntax"""
+    heading_patterns = [
+        (re.compile(r'###### (.*)'), r'<h6>\1</h6>'),
+        (re.compile(r'##### (.*)'), r'<h5>\1</h5>'),
+        (re.compile(r'#### (.*)'), r'<h4>\1</h4>'),
+        (re.compile(r'### (.*)'), r'<h3>\1</h3>'),
+        (re.compile(r'## (.*)'), r'<h2>\1</h2>'),
+        (re.compile(r'# (.*)'), r'<h1>\1</h1>')
+    ]
+
+    html_content = mark_content
+
+    for pattern, replacement in heading_patterns:
+        html_content = pattern.sub(replacement, html_content)
+
+    return html_content
 
 
 def main():
@@ -24,14 +44,7 @@ def main():
     with open(input_file, 'r') as infile:
         markdown_content = infile.read()
 
-    # Convert Markdown to HTML
-    try:
-        import markdown
-    except ImportError:
-        print("The 'markdown' package is required.", file=sys.stderr)
-        sys.exit(1)
-
-    html_content = markdown.markdown(markdown_content)
+    html_content = markdown2html(markdown_content)
 
     with open(output_file, 'w') as outfile:
         outfile.write(html_content)
