@@ -21,6 +21,21 @@ def main():
         print(f"Missing {input_file}", file=sys.stderr)
         sys.exit(1)
 
+    with open(input_file, 'r') as infile:
+        markdown_content = infile.read()
+
+    # Convert Markdown to HTML
+    try:
+        import markdown
+    except ImportError:
+        print("The 'markdown' package is required.", file=sys.stderr)
+        sys.exit(1)
+
+    html_content = markdown.markdown(markdown_content)
+
+    with open(output_file, 'w') as outfile:
+        outfile.write(html_content)
+
     sys.exit(0)
 
 
